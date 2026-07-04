@@ -55,7 +55,7 @@ export default function Login() {
               required
             />
           </div>
-          <div className="form-group">
+          <div className="form-group" style={{ marginBottom: '0.5rem' }}>
             <label>Password</label>
             <input
               type="password"
@@ -65,6 +65,11 @@ export default function Login() {
               placeholder="••••••••"
               required
             />
+          </div>
+          <div style={{ textAlign: 'right', marginBottom: '1.5rem' }}>
+            <Link to="/forgot-password" style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textDecoration: 'none' }}>
+              Forgot Password?
+            </Link>
           </div>
           {error && <div className="error-text mb-4">{error}</div>}
           <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} disabled={loading}>

@@ -1,21 +1,20 @@
-import { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-export default function Signup() {
+export default function ForgotPassword() {
   const [step, setStep] = useState(1);
   const [institutionId, setInstitutionId] = useState('');
-  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [maskedMobile, setMaskedMobile] = useState('');
   
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSendOtp = async (e) => {
@@ -27,7 +26,7 @@ export default function Signup() {
       const res = await fetch(`${API_URL}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ institutionId, action: 'signup' }),
+        body: JSON.stringify({ institutionId, action: 'forgot-password' }),
       });
 
       const data = await res.json();
@@ -49,7 +48,7 @@ export default function Signup() {
     e.preventDefault();
     setError('');
     
-    if (password !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
@@ -57,20 +56,22 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/signup`, {
+      const res = await fetch(`${API_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ institutionId, password, otp }),
+        body: JSON.stringify({ institutionId, newPassword, otp }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Signup failed');
+        throw new Error(data.error || 'Password reset failed');
       }
 
-      login(data);
-      navigate('/dashboard');
+      setSuccess('Password reset successfully. You can now login.');
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -81,13 +82,19 @@ export default function Signup() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
       <div className="glass-card" style={{ width: '100%', maxWidth: '400px' }}>
-        <h2 className="text-center mb-4">Create Account</h2>
-        <p className="text-center text-muted mb-4" style={{ fontSize: '0.9rem' }}>
-          Only Aditya University Employees can register.
-        </p>
+        <h2 className="text-center mb-4">Reset Password</h2>
         
-        {step === 1 ? (
+        {success && (
+          <div className="mb-4" style={{ background: 'rgba(16, 185, 129, 0.2)', color: 'var(--success)', padding: '1rem', borderRadius: '8px', textAlign: 'center' }}>
+            {success}
+          </div>
+        )}
+
+        {!success && step === 1 && (
           <form onSubmit={handleSendOtp}>
+            <p className="text-center text-muted mb-4" style={{ fontSize: '0.9rem' }}>
+              Enter your Employee ID to receive a reset OTP on your registered mobile.
+            </p>
             <div className="form-group">
               <label>Employee ID</label>
               <input
@@ -101,13 +108,18 @@ export default function Signup() {
             </div>
             {error && <div className="error-text mb-4">{error}</div>}
             <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} disabled={loading}>
-              {loading ? 'Sending OTP...' : 'Next'}
+              {loading ? 'Sending OTP...' : 'Send Reset Code'}
             </button>
           </form>
-        ) : (
+        )}
+        
+        {!success && step === 2 && (
           <form onSubmit={handleSubmit}>
+            <p className="text-center text-muted mb-4" style={{ fontSize: '0.9rem' }}>
+              Enter the OTP sent to {maskedMobile} and your new password.
+            </p>
             <div className="form-group">
-              <label>OTP Sent to {maskedMobile}</label>
+              <label>OTP</label>
               <input
                 type="text"
                 className="input"
@@ -118,18 +130,18 @@ export default function Signup() {
               />
             </div>
             <div className="form-group">
-              <label>Password</label>
+              <label>New Password</label>
               <input
                 type="password"
                 className="input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="••••••••"
                 required
               />
             </div>
             <div className="form-group">
-              <label>Confirm Password</label>
+              <label>Confirm New Password</label>
               <input
                 type="password"
                 className="input"
@@ -141,7 +153,7 @@ export default function Signup() {
             </div>
             {error && <div className="error-text mb-4">{error}</div>}
             <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} disabled={loading}>
-              {loading ? 'Verifying & Registering...' : 'Sign Up'}
+              {loading ? 'Resetting...' : 'Reset Password'}
             </button>
             <button 
               type="button" 
@@ -155,7 +167,7 @@ export default function Signup() {
         )}
 
         <p className="text-center mt-4 text-muted" style={{ fontSize: '0.9rem' }}>
-          Already have an account? <Link to="/login" style={{ color: 'var(--primary)' }}>Login</Link>
+          Remembered your password? <Link to="/login" style={{ color: 'var(--primary)' }}>Login</Link>
         </p>
       </div>
     </div>

@@ -18,7 +18,7 @@ function App() {
 
   return (
     <div className={`app-container ${isSidebarFolded ? 'sidebar-folded' : ''}`}>
-      {user && <Navbar isSidebarFolded={isSidebarFolded} setIsSidebarFolded={setIsSidebarFolded} />}
+      <Navbar isSidebarFolded={isSidebarFolded} setIsSidebarFolded={setIsSidebarFolded} />
       
       {user ? (
         <div className="app-layout">

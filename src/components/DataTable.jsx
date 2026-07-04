@@ -46,10 +46,18 @@ export default function DataTable({ data, columns, searchPlaceholder = "Search..
     currentPage * itemsPerPage
   );
 
+  if (!data || data.length === 0) {
+    return (
+      <div className="text-center text-muted" style={{ padding: '2rem 0', background: 'var(--card-bg)', borderRadius: '12px' }}>
+        No data found.
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="table-controls">
-        <div className="table-search">
+        <div className="table-search" style={{ maxWidth: '300px' }}>
           <Search size={16} color="var(--text-muted)" />
           <input 
             type="text" 
@@ -57,19 +65,6 @@ export default function DataTable({ data, columns, searchPlaceholder = "Search..
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
           />
-        </div>
-        <div>
-          <select 
-            className="input" 
-            style={{ width: 'auto', padding: '0.4rem', fontSize: '0.9rem' }}
-            value={itemsPerPage}
-            onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
-          >
-            <option value={5}>5 per page</option>
-            <option value={10}>10 per page</option>
-            <option value={20}>20 per page</option>
-            <option value={50}>50 per page</option>
-          </select>
         </div>
       </div>
 
@@ -114,14 +109,28 @@ export default function DataTable({ data, columns, searchPlaceholder = "Search..
         </table>
       </div>
 
-      <div className="pagination-controls">
-        <div className="text-muted" style={{ fontSize: '0.9rem' }}>
-          Showing {paginatedData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to {Math.min(currentPage * itemsPerPage, processedData.length)} of {processedData.length} entries
+      <div className="pagination-controls" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <div className="text-muted" style={{ fontSize: '0.9rem' }}>
+            Showing {paginatedData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to {Math.min(currentPage * itemsPerPage, processedData.length)} of {processedData.length} entries
+          </div>
+          <select 
+            className="input" 
+            style={{ width: 'auto', padding: '0.4rem', fontSize: '0.9rem' }}
+            value={itemsPerPage}
+            onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+          >
+            <option value={5}>5 per page</option>
+            <option value={10}>10 per page</option>
+            <option value={20}>20 per page</option>
+            <option value={50}>50 per page</option>
+          </select>
         </div>
+        
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button 
-            className="btn" 
-            style={{ padding: '0.4rem', background: 'var(--input-bg)' }}
+            className="btn btn-primary" 
+            style={{ padding: '0.4rem' }}
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
           >
@@ -131,8 +140,8 @@ export default function DataTable({ data, columns, searchPlaceholder = "Search..
             {currentPage} / {totalPages || 1}
           </span>
           <button 
-            className="btn" 
-            style={{ padding: '0.4rem', background: 'var(--input-bg)' }}
+            className="btn btn-primary" 
+            style={{ padding: '0.4rem' }}
             disabled={currentPage === totalPages || totalPages === 0}
             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
           >

@@ -3,6 +3,8 @@ import { AuthContext } from '../context/AuthContext';
 import { Copy, Trash2, Power, PowerOff, Plus, Download } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import CreateLinkModal from '../components/CreateLinkModal';
+import CustomQRCode from '../components/CustomQRCode';
+import QRDownloadModal from '../components/QRDownloadModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -10,6 +12,8 @@ export default function QRCodes() {
   const { user } = useContext(AuthContext);
   const [urls, setUrls] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [selectedQR, setSelectedQR] = useState(null);
   
   const fetchUrls = async () => {
     try {
@@ -18,7 +22,6 @@ export default function QRCodes() {
       });
       const data = await res.json();
       if (res.ok) {
-        // Filter only qr codes
         setUrls(data.filter(u => u.type === 'qr'));
       }
     } catch (err) {
@@ -59,23 +62,9 @@ export default function QRCodes() {
     }
   };
 
-  const downloadQRCode = async (shortUrl, shortCode) => {
-    try {
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(shortUrl)}`;
-      const response = await fetch(qrUrl);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = `qrcode-${shortCode}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      console.error('Failed to download QR code', err);
-      alert('Failed to download QR code. Please try again.');
-    }
+  const downloadQRCode = (shortUrl, shortCode) => {
+    setSelectedQR({ url: shortUrl, code: shortCode });
+    setIsDownloadModalOpen(true);
   };
 
   const columns = useMemo(() => [
@@ -85,16 +74,19 @@ export default function QRCodes() {
       sortable: false,
       render: (row) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <img 
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${encodeURIComponent(row.shortUrl)}`} 
-            alt="QR Code"
-            className="qr-image"
-          />
+          <div style={{ pointerEvents: 'none' }}>
+            <CustomQRCode 
+              data={row.shortUrl} 
+              size={60} 
+              colorType="solid"
+              solidColor="var(--text-main)"
+            />
+          </div>
           <button 
             onClick={() => downloadQRCode(row.shortUrl, row.shortCode)}
             className="btn"
             style={{ padding: '0.4rem', background: 'var(--primary)', color: 'white' }}
-            title="Download High-Res QR"
+            title="Download Customized High-Res QR"
           >
             <Download size={14} />
           </button>
@@ -187,6 +179,13 @@ export default function QRCodes() {
         onClose={() => setIsModalOpen(false)} 
         onSuccess={fetchUrls}
         type="qr"
+      />
+
+      <QRDownloadModal 
+        isOpen={isDownloadModalOpen}
+        onClose={() => setIsDownloadModalOpen(false)}
+        url={selectedQR?.url}
+        shortCode={selectedQR?.code}
       />
     </div>
   );

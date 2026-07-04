@@ -1,12 +1,12 @@
 import { useState, useEffect, useContext, useMemo } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Copy, Trash2, Power, PowerOff, Plus } from 'lucide-react';
+import { Copy, Trash2, Power, PowerOff, Plus, Download } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import CreateLinkModal from '../components/CreateLinkModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-export default function Dashboard() {
+export default function QRCodes() {
   const { user } = useContext(AuthContext);
   const [urls, setUrls] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,8 +18,8 @@ export default function Dashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        // Filter out QR codes, only show short_urls
-        setUrls(data.filter(u => u.type === 'short_url' || !u.type));
+        // Filter only qr codes
+        setUrls(data.filter(u => u.type === 'qr'));
       }
     } catch (err) {
       console.error(err);
@@ -47,7 +47,7 @@ export default function Dashboard() {
   };
 
   const handleSoftDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this link? It will stop working permanently.')) return;
+    if (!window.confirm('Are you sure you want to delete this QR Code? It will stop working permanently.')) return;
     try {
       const res = await fetch(`${API_URL}/api/urls/${id}`, {
         method: 'DELETE',
@@ -59,18 +59,54 @@ export default function Dashboard() {
     }
   };
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    alert('Copied to clipboard!');
+  const downloadQRCode = async (shortUrl, shortCode) => {
+    try {
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(shortUrl)}`;
+      const response = await fetch(qrUrl);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `qrcode-${shortCode}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error('Failed to download QR code', err);
+      alert('Failed to download QR code. Please try again.');
+    }
   };
 
   const columns = useMemo(() => [
     {
-      label: 'Original URL',
+      label: 'QR Code',
+      key: 'qr',
+      sortable: false,
+      render: (row) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <img 
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${encodeURIComponent(row.shortUrl)}`} 
+            alt="QR Code"
+            className="qr-image"
+          />
+          <button 
+            onClick={() => downloadQRCode(row.shortUrl, row.shortCode)}
+            className="btn"
+            style={{ padding: '0.4rem', background: 'var(--primary)', color: 'white' }}
+            title="Download High-Res QR"
+          >
+            <Download size={14} />
+          </button>
+        </div>
+      )
+    },
+    {
+      label: 'Destination',
       key: 'longUrl',
       sortable: true,
       render: (row) => (
-        <div style={{ maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           <a href={row.longUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--text-muted)' }} title={row.longUrl}>
             {row.longUrl}
           </a>
@@ -78,22 +114,7 @@ export default function Dashboard() {
       )
     },
     {
-      label: 'Short URL',
-      key: 'shortCode',
-      sortable: true,
-      render: (row) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <a href={row.shortUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)', fontWeight: 'bold', textDecoration: 'none' }}>
-            {row.shortCode}
-          </a>
-          <button onClick={() => copyToClipboard(row.shortUrl)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }} title="Copy">
-            <Copy size={14} />
-          </button>
-        </div>
-      )
-    },
-    {
-      label: 'Clicks',
+      label: 'Scans (Clicks)',
       key: 'clicks',
       sortable: true,
       render: (row) => <span className="badge" style={{ background: 'rgba(128,128,128,0.2)' }}>{row.clicks}</span>
@@ -108,7 +129,7 @@ export default function Dashboard() {
           isExpired = true;
         }
         return isExpired ? (
-          <span className="badge badge-expired" title="This link has crossed its expiration date">Expired</span>
+          <span className="badge badge-expired" title="This QR has crossed its expiration date">Expired</span>
         ) : row.isActive ? (
           <span className="badge badge-active">Active</span>
         ) : (
@@ -126,7 +147,7 @@ export default function Dashboard() {
             onClick={() => handleToggleActive(row._id, row.isActive)}
             className="btn" 
             style={{ padding: '0.4rem', background: row.isActive ? 'var(--warning)' : 'var(--success)' }}
-            title={row.isActive ? 'Deactivate Link' : 'Activate Link'}
+            title={row.isActive ? 'Deactivate QR' : 'Activate QR'}
           >
             {row.isActive ? <PowerOff size={14} color="white"/> : <Power size={14} color="white"/>}
           </button>
@@ -134,7 +155,7 @@ export default function Dashboard() {
             onClick={() => handleSoftDelete(row._id)}
             className="btn btn-danger" 
             style={{ padding: '0.4rem' }}
-            title="Delete Link"
+            title="Delete QR"
           >
             <Trash2 size={14} />
           </button>
@@ -146,9 +167,9 @@ export default function Dashboard() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h2>Short URLs</h2>
+        <h2>QR Codes</h2>
         <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-          <Plus size={18} /> Create New
+          <Plus size={18} /> Create QR
         </button>
       </div>
 
@@ -156,7 +177,7 @@ export default function Dashboard() {
         <DataTable 
           data={urls} 
           columns={columns} 
-          searchPlaceholder="Search Original URL..."
+          searchPlaceholder="Search Destination URL..."
           searchKey="longUrl"
         />
       </div>
@@ -165,7 +186,7 @@ export default function Dashboard() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onSuccess={fetchUrls}
-        type="short_url"
+        type="qr"
       />
     </div>
   );

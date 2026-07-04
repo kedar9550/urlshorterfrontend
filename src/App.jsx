@@ -2,9 +2,11 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import QRCodes from './pages/QRCodes';
 import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
@@ -15,24 +17,28 @@ function App() {
   return (
     <div className="app-container">
       {user && <Navbar />}
-      <div className="main-content">
-        <Routes>
-          <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
-          <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/dashboard" />} />
-          
-          <Route 
-            path="/dashboard" 
-            element={user ? <Dashboard /> : <Navigate to="/login" />} 
-          />
-          
-          <Route 
-            path="/admin" 
-            element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/dashboard" />} 
-          />
-          
-          <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
-        </Routes>
-      </div>
+      
+      {user ? (
+        <div className="app-layout">
+          <Sidebar />
+          <div className="content-wrapper">
+            <Routes>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/qrcodes" element={<QRCodes />} />
+              <Route path="/admin" element={user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/dashboard" />} />
+              <Route path="*" element={<Navigate to="/dashboard" />} />
+            </Routes>
+          </div>
+        </div>
+      ) : (
+        <div className="main-content">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="*" element={<Navigate to="/login" />} />
+          </Routes>
+        </div>
+      )}
     </div>
   );
 }

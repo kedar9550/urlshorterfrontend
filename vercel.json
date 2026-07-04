@@ -5,7 +5,7 @@
       "destination": "https://urlshorterbackend-btbs.onrender.com/api/$1"
     },
     {
-      "source": "/(login|signup|dashboard|admin)",
+      "source": "/(login|signup|dashboard|admin|qrcodes)",
       "destination": "/index.html"
     },
     {

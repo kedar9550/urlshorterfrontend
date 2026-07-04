@@ -8,7 +8,6 @@ import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import QRCodes from './pages/QRCodes';
-import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   const { user, loading } = useContext(AuthContext);
@@ -27,7 +26,6 @@ function App() {
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/qrcodes" element={<QRCodes />} />
-              <Route path="/admin" element={user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/dashboard" />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>
           </div>

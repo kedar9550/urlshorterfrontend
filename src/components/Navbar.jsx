@@ -6,7 +6,7 @@ import ChangePasswordModal from './ChangePasswordModal';
 import logo from '../assets/aditya-logo.png';
 
 export default function Navbar({ isSidebarFolded, setIsSidebarFolded }) {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, appMode, setAppMode } = useContext(AuthContext);
   const navigate = useNavigate();
   const [imgError, setImgError] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
@@ -91,9 +91,13 @@ export default function Navbar({ isSidebarFolded, setIsSidebarFolded }) {
           </button>
 
           {user.role === 'admin' && (
-            <Link to="/admin" className="btn desktop-only" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', marginRight: '10px' }}>
-              <Shield size={16} /> Admin Panel
-            </Link>
+            <button 
+              onClick={() => setAppMode(appMode === 'admin' ? 'user' : 'admin')}
+              className="btn desktop-only" 
+              style={{ background: appMode === 'admin' ? 'var(--danger)' : 'rgba(255,255,255,0.2)', color: 'white', marginRight: '10px' }}
+            >
+              <Shield size={16} /> {appMode === 'admin' ? 'Exit Admin Mode' : 'Admin Mode'}
+            </button>
           )}
 
           <div style={{ position: 'relative' }} ref={menuRef}>
@@ -103,7 +107,9 @@ export default function Navbar({ isSidebarFolded, setIsSidebarFolded }) {
             >
               <div className="profile-details" style={{ textAlign: 'right', color: 'white' }}>
                 <div style={{ fontWeight: '600' }}>{user.name}</div>
-                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)' }}>{user.institutionId}</div>
+                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)' }}>
+                  {user.designation ? `${user.designation} (${user.institutionId})` : user.institutionId}
+                </div>
               </div>
 
               {!imgError ? (
@@ -137,13 +143,22 @@ export default function Navbar({ isSidebarFolded, setIsSidebarFolded }) {
               }}>
                 <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
                   <div style={{ fontWeight: '600', color: 'var(--text-main)' }}>{user.name}</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{user.institutionId}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    {user.designation ? `${user.designation} (${user.institutionId})` : user.institutionId}
+                  </div>
                 </div>
 
                 {user.role === 'admin' && (
-                  <Link to="/admin" className="btn" style={{ background: 'transparent', color: 'var(--text-main)', justifyContent: 'flex-start', padding: '0.5rem' }}>
-                    <Shield size={18} /> Admin Panel
-                  </Link>
+                  <button
+                    onClick={() => {
+                      setAppMode(appMode === 'admin' ? 'user' : 'admin');
+                      setIsProfileMenuOpen(false);
+                    }}
+                    className="btn" 
+                    style={{ background: 'transparent', color: appMode === 'admin' ? 'var(--danger)' : 'var(--text-main)', justifyContent: 'flex-start', padding: '0.5rem' }}
+                  >
+                    <Shield size={18} /> {appMode === 'admin' ? 'Exit Admin Mode' : 'Admin Mode'}
+                  </button>
                 )}
 
                 <button

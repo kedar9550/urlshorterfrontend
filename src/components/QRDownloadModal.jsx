@@ -3,7 +3,7 @@ import { X, Download } from 'lucide-react';
 import CustomQRCode from './CustomQRCode';
 
 export default function QRDownloadModal({ isOpen, onClose, url, shortCode }) {
-  const [colorType, setColorType] = useState('solid');
+  const [colorType, setColorType] = useState('bw');
   const [solidColor, setSolidColor] = useState('#000000');
   const [gradientStart, setGradientStart] = useState('#BE9337');
   const [gradientEnd, setGradientEnd] = useState('#0D233B');
@@ -20,16 +20,16 @@ export default function QRDownloadModal({ isOpen, onClose, url, shortCode }) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal" style={{ maxWidth: '400px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" style={{ maxWidth: '400px', width: '90%' }} onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
           <h3 style={{ margin: 0 }}>Customize QR Code</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>
-            <X size={20} />
+          <button className="close-btn" onClick={onClose}>
+            <X size={24} />
           </button>
         </div>
 
-        <div style={{ marginBottom: '1.5rem', background: '#fff', padding: '1rem', borderRadius: '8px' }}>
+        <div style={{ marginBottom: '1.5rem', background: '#fff', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'center' }}>
           <CustomQRCode 
             data={url}
             size={250}

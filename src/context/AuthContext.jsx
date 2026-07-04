@@ -6,6 +6,13 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
+  const [appMode, setAppModeState] = useState(localStorage.getItem('appMode') || 'user');
+
+  const setAppMode = (mode) => {
+    setAppModeState(mode);
+    localStorage.setItem('appMode', mode);
+  };
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -22,12 +29,14 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    setAppMode('user');
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    localStorage.removeItem('appMode');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, appMode, setAppMode }}>
       {children}
     </AuthContext.Provider>
   );

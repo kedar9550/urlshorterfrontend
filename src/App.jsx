@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { AuthContext } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -11,16 +11,17 @@ import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   const { user, loading } = useContext(AuthContext);
+  const [isSidebarFolded, setIsSidebarFolded] = useState(false);
 
   if (loading) return <div className="loader">Loading...</div>;
 
   return (
-    <div className="app-container">
-      {user && <Navbar />}
+    <div className={`app-container ${isSidebarFolded ? 'sidebar-folded' : ''}`}>
+      {user && <Navbar isSidebarFolded={isSidebarFolded} setIsSidebarFolded={setIsSidebarFolded} />}
       
       {user ? (
         <div className="app-layout">
-          <Sidebar />
+          <Sidebar isSidebarFolded={isSidebarFolded} setIsSidebarFolded={setIsSidebarFolded} />
           <div className="content-wrapper">
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />

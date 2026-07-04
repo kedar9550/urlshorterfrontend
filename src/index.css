@@ -275,11 +275,22 @@ tr:hover {
   height: calc(100vh - 72px);
   top: 72px;
   z-index: 10;
+  transition: width 0.3s ease;
+}
+.sidebar.folded {
+  width: 80px;
+  align-items: center;
+}
+.sidebar.folded .sidebar-link {
+  justify-content: center;
+  padding: 1rem 0;
+  width: 100%;
 }
 .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
 }
 .sidebar-link {
   display: flex;
@@ -301,6 +312,12 @@ tr:hover {
   margin-left: var(--sidebar-width);
   padding: 2rem;
   width: calc(100% - var(--sidebar-width));
+  transition: all 0.3s ease;
+}
+
+.sidebar-folded .content-wrapper {
+  margin-left: 80px;
+  width: calc(100% - 80px);
 }
 
 @media (max-width: 768px) {

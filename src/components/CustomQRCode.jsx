@@ -8,6 +8,7 @@ export default function CustomQRCode({
   colorType = 'solid', // 'bw', 'solid', 'gradient'
   solidColor = '#000000',
   gradientColors = ['#BE9337', '#0D233B'],
+  resolution = null,
   onInit
 }) {
   const ref = useRef(null);
@@ -33,8 +34,8 @@ export default function CustomQRCode({
     }
 
     const qrCode = new QRCodeStyling({
-      width: size,
-      height: size,
+      width: resolution || size,
+      height: resolution || size,
       data: data,
       image: logo,
       dotsOptions: dotsOptions,
@@ -56,12 +57,18 @@ export default function CustomQRCode({
     if (ref.current) {
       ref.current.innerHTML = '';
       qrCode.append(ref.current);
+      
+      const canvas = ref.current.firstChild;
+      if (canvas) {
+        canvas.style.width = `${size}px`;
+        canvas.style.height = `${size}px`;
+      }
     }
     
     if (onInit) {
       onInit(qrCode);
     }
-  }, [data, size, colorType, solidColor, gradientColors, onInit]);
+  }, [data, size, colorType, solidColor, gradientColors, resolution, onInit]);
 
   return <div ref={ref} style={{ display: 'flex', justifyContent: 'center' }} />;
 }

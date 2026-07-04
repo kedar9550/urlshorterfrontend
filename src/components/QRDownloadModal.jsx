@@ -33,6 +33,7 @@ export default function QRDownloadModal({ isOpen, onClose, url, shortCode }) {
           <CustomQRCode 
             data={url}
             size={250}
+            resolution={1000}
             colorType={colorType}
             solidColor={solidColor}
             gradientColors={[gradientStart, gradientEnd]}

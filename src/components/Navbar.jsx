@@ -32,16 +32,6 @@ export default function Navbar({ isSidebarFolded, setIsSidebarFolded }) {
   return (
     <nav className="navbar" style={{ background: 'var(--primary)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        {user && (
-          <button 
-            className="btn" 
-            style={{ padding: '0.5rem', background: 'transparent', color: 'white' }}
-            onClick={() => setIsSidebarFolded(!isSidebarFolded)}
-            title="Toggle Sidebar"
-          >
-            <Menu size={24} />
-          </button>
-        )}
         <Link to="/dashboard" className="nav-brand" style={{ color: 'white' }}>
           <LinkIcon size={24} color="white" />
           URLShorty
@@ -64,7 +54,7 @@ export default function Navbar({ isSidebarFolded, setIsSidebarFolded }) {
           </Link>
         )}
         
-        <div style={{ textAlign: 'right', marginRight: '10px', color: 'white' }}>
+        <div className="profile-details" style={{ textAlign: 'right', marginRight: '10px', color: 'white' }}>
           <div style={{ fontWeight: '600' }}>{user.name}</div>
           <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)' }}>{user.institutionId}</div>
         </div>

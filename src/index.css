@@ -33,6 +33,11 @@ body.light-theme {
   padding: 0;
 }
 
+html {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 body {
   font-family: 'Inter', system-ui, sans-serif;
   background: var(--bg-color);
@@ -42,12 +47,15 @@ body {
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
+  max-width: 100vw;
 }
 
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
 }
 
 .main-content {
@@ -118,6 +126,22 @@ body {
   font-weight: bold;
   font-size: 1.2rem;
   color: white;
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .nav-profile .profile-details {
+    display: none;
+  }
+  .navbar {
+    padding: 1rem 0.5rem;
+  }
+  .nav-profile {
+    gap: 0.5rem;
+  }
+  .nav-brand {
+    font-size: 1.25rem;
+  }
 }
 
 .logout-btn {
@@ -260,6 +284,8 @@ tr:hover {
 .app-layout {
   display: flex;
   min-height: calc(100vh - 72px); /* minus navbar */
+  min-width: 0;
+  max-width: 100vw;
 }
 
 /* Sidebar */
@@ -285,6 +311,9 @@ tr:hover {
   justify-content: center;
   padding: 1rem 0;
   width: 100%;
+}
+.sidebar.folded .sidebar-text {
+  display: none;
 }
 .sidebar-nav {
   display: flex;
@@ -313,6 +342,8 @@ tr:hover {
   padding: 2rem;
   width: calc(100% - var(--sidebar-width));
   transition: all 0.3s ease;
+  min-width: 0;
+  max-width: 100vw;
 }
 
 .sidebar-folded .content-wrapper {
@@ -347,10 +378,28 @@ tr:hover {
     gap: 0.25rem;
     font-size: 0.75rem;
   }
-  .content-wrapper {
+  .content-wrapper, .sidebar-folded .content-wrapper {
     margin-left: 0;
     width: 100%;
     padding-bottom: 80px; /* space for bottom nav */
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .sidebar.folded {
+    width: 100%;
+  }
+  
+  .sidebar.folded .sidebar-link {
+    flex-direction: column;
+    padding: 0.5rem;
+    width: auto;
+  }
+  .sidebar.folded .sidebar-text {
+    display: inline;
+  }
+  .sidebar-footer {
+    display: none !important;
   }
 }
 
@@ -394,6 +443,8 @@ tr:hover {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 .table-search {
   display: flex;
@@ -402,6 +453,8 @@ tr:hover {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.5rem 1rem;
+  flex: 1;
+  min-width: 200px;
 }
 .table-search input {
   background: transparent;

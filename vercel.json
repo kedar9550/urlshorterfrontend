@@ -4,10 +4,11 @@
       "source": "/api/(.*)",
       "destination": "https://urlshorterbackend-btbs.onrender.com/api/$1"
     },
-    {
-      "source": "/(login|signup|dashboard|admin|qrcodes)",
-      "destination": "/index.html"
-    },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/signup", "destination": "/index.html" },
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/qrcodes", "destination": "/index.html" },
     {
       "source": "/:code([a-zA-Z0-9_-]+)",
       "destination": "https://urlshorterbackend-btbs.onrender.com/:code"

@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useMemo } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Copy, Trash2, Power, PowerOff, Plus } from 'lucide-react';
+import { Copy, Trash2, Power, PowerOff, Plus, Check } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import CreateLinkModal from '../components/CreateLinkModal';
 
@@ -10,6 +10,7 @@ export default function Dashboard() {
   const { user, appMode } = useContext(AuthContext);
   const [urls, setUrls] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
   
   const fetchUrls = async () => {
     try {
@@ -26,6 +27,7 @@ export default function Dashboard() {
         } else {
            filtered = filtered.filter(u => !u.isDeleted);
         }
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setUrls(filtered);
       }
     } catch (err) {
@@ -79,9 +81,10 @@ export default function Dashboard() {
     }
   };
 
-  const copyToClipboard = (text) => {
+  const copyToClipboard = (text, id) => {
     navigator.clipboard.writeText(text);
-    alert('Copied to clipboard!');
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const columns = useMemo(() => {
@@ -107,9 +110,22 @@ export default function Dashboard() {
             <a href={row.shortUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)', fontWeight: 'bold', textDecoration: 'none' }}>
               {row.shortCode}
             </a>
-            <button onClick={() => copyToClipboard(row.shortUrl)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }} title="Copy">
-              <Copy size={14} />
+            <button onClick={() => copyToClipboard(row.shortUrl, row._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }} title="Copy">
+              {copiedId === row._id ? <Check size={14} color="var(--success)" /> : <Copy size={14} />}
             </button>
+          </div>
+        )
+      },
+      {
+        label: 'Created',
+        key: 'createdAt',
+        sortable: true,
+        render: (row) => (
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            {row.createdAt ? new Date(row.createdAt).toLocaleString(undefined, {
+              year: 'numeric', month: 'short', day: 'numeric',
+              hour: '2-digit', minute: '2-digit'
+            }) : 'N/A'}
           </div>
         )
       },
@@ -195,7 +211,7 @@ export default function Dashboard() {
     }
 
     return cols;
-  }, [appMode]);
+  }, [appMode, copiedId]);
 
   return (
     <div>
